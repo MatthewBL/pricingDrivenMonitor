@@ -107,3 +107,8 @@ print('Storage Usage: '+ str(storage_usage_evaluation))
 joblib.dump(cpu_usage_model, 'cpu_usage_model.pkl')
 joblib.dump(memory_usage_model, 'memory_usage_model.pkl')
 joblib.dump(storage_usage_model, 'storage_usage_model.pkl')
+
+# Save the selected features to disk
+joblib.dump(cpu_usage_feature_selection, 'cpu_usage_features.pkl')
+joblib.dump(memory_usage_feature_selection, 'memory_usage_features.pkl')
+joblib.dump(storage_usage_feature_selection, 'storage_usage_features.pkl')
