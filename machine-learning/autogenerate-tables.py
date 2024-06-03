@@ -10,6 +10,9 @@ num_rows = 1000
 # Define the number of URLs
 num_urls = 20
 
+# Generate a list of IDs
+ids = [fake.uuid4() for _ in range(num_rows)]
+
 # Generate a list of URLs
 urls = [fake.url() for _ in range(num_urls)]
 
@@ -24,6 +27,7 @@ storage_usage = [base + request * random.uniform(0.1, 50) for base, request in z
 memory_usage = [base + request * random.uniform(0.1, 50) for base, request in zip(base_memory_usage, concurrent_requests)]  # in MB
 
 backend_data = {
+    'Request ID': ids,
     'Endpoint': urls * (num_rows // num_urls),
     'CPU Usage': cpu_usage,
     'Memory Usage': memory_usage,
@@ -38,6 +42,7 @@ request_size = [usage * random.uniform(0.1, 1) for usage in base_storage_usage] 
 request_time = [usage * random.uniform(0.1, 1) for usage in cpu_usage]  # in seconds
 
 frontend_data = {
+    'Request ID': ids,
     'URL': urls * (num_rows // num_urls),
     'Query': [fake.uri_path() for _ in range(num_rows)],
     'HTTP method': [random.choice(['GET', 'POST', 'PUT', 'DELETE']) for _ in range(num_rows)],
