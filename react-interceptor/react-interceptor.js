@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 var successful = true;
 var url;
 var query;
@@ -7,6 +9,7 @@ var requestSize;
 var responseStatus;
 var requestTime;
 var responseSize;
+var requestId;
 
 // Add a request interceptor
 api.interceptors.request.use((config) => {
@@ -36,6 +39,12 @@ api.interceptors.request.use((config) => {
   // Calculate the size of the request
   requestSize = JSON.stringify(config.data).length;
   console.log('Request size:', requestSize, 'bytes');
+
+  // Generate a unique identifier for the request
+  requestId = uuidv4();
+
+  // Add the identifier to the request headers
+  config.headers['X-Request-ID'] = requestId;
 
   // Add a timestamp to the config
   config.metadata = { startTime: new Date() };
@@ -71,6 +80,7 @@ if (successful) {
 
   // Format the data as CSV
   const csvData = [
+    requestId,
     url,
     query,
     httpMethod,
