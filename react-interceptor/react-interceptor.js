@@ -95,7 +95,7 @@ if (successful) {
 
   // Check if file exists, if not, write headers
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, 'URL,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size\n');
+    fs.writeFileSync(filePath, 'Request ID,URL,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size\n');
   }
 
   // Append the data to the CSV file

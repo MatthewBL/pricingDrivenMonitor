@@ -52,10 +52,19 @@ public class UsageInterceptor implements HandlerInterceptor {
         int concurrentRequestsCount = concurrentRequests.get();
         String requestId = request.getHeader("X-Request-ID"); // Get the requestId from the headers
         System.out.println("Request ID: " + requestId + ", Endpoint: " + endpoint + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage + ", Concurrent requests: " + concurrentRequests.get());
-    
+
         String parentDir = new File(System.getProperty("user.dir")).getParent();
         String filePath = parentDir + "/machine-learning/backend_access_data.csv";
-    
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
+                writer.println("Request ID,Endpoint,CPU Usage,Memory Usage,Storage Usage,Concurrent Requests");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
             writer.println(requestId + "," + endpoint + "," + cpuUsage + "," + memoryUsage + "," + storageUsage + "," + concurrentRequestsCount); // Include the requestId in the CSV
         } catch (IOException e) {
