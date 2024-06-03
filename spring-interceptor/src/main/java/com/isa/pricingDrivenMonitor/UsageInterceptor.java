@@ -53,7 +53,7 @@ public class UsageInterceptor implements HandlerInterceptor {
         System.out.println("Endpoint: " + endpoint + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage + ", Concurrent requests: " + concurrentRequests.get());
         
         String parentDir = new File(System.getProperty("user.dir")).getParent();
-        String filePath = parentDir + "/machine-learning/usage_data.csv";
+        String filePath = parentDir + "/machine-learning/backend_access_data.csv";
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
             writer.println(endpoint + "," + cpuUsage + "," + memoryUsage + "," + storageUsage + "," + concurrentRequestsCount);
