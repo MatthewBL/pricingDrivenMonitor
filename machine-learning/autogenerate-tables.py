@@ -28,11 +28,9 @@ memory_usage = [base + request * random.uniform(0.1, 50) for base, request in zi
 
 backend_data = {
     'Request ID': ids,
-    'Endpoint': urls * (num_rows // num_urls),
     'CPU Usage': cpu_usage,
     'Memory Usage': memory_usage,
-    'Storage Usage': storage_usage,
-    'Concurrent requests': concurrent_requests
+    'Storage Usage': storage_usage
 }
 df = pd.DataFrame(backend_data)
 df.to_csv('backend_access_data.csv', index=False)
@@ -43,14 +41,15 @@ request_time = [usage * random.uniform(0.1, 1) for usage in cpu_usage]  # in sec
 
 frontend_data = {
     'Request ID': ids,
-    'URL': urls * (num_rows // num_urls),
+    'Endpoint': urls * (num_rows // num_urls),
     'Query': [fake.uri_path() for _ in range(num_rows)],
     'HTTP method': [random.choice(['GET', 'POST', 'PUT', 'DELETE']) for _ in range(num_rows)],
     'Pricing Plan': [random.choice(['Free', 'Basic', 'Premium']) for _ in range(num_rows)],
     'Request Size': request_size,
     'Response Status': [random.choice([200, 404, 500]) for _ in range(num_rows)],
     'Request Time': request_time,
-    'Response Size': [random.randint(1, 5000) for _ in range(num_rows)]  # in KB
+    'Response Size': [random.randint(1, 5000) for _ in range(num_rows)],  # in KB
+    'Concurrent requests': concurrent_requests
 }
 df = pd.DataFrame(frontend_data)
 df.to_csv('frontend_access_data.csv', index=False)
