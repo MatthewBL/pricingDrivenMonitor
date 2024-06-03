@@ -48,10 +48,9 @@ public class UsageInterceptor implements HandlerInterceptor {
         double cpuUsage = cpuLoadAfter - cpuLoadBefore;
         long memoryUsage = usedMemoryAfter - usedMemoryBefore;
         long storageUsage = freeSpaceBefore - freeSpaceAfter;
-        String endpoint = request.getRequestURI();
         int concurrentRequestsCount = concurrentRequests.get();
         String requestId = request.getHeader("X-Request-ID"); // Get the requestId from the headers
-        System.out.println("Request ID: " + requestId + ", Endpoint: " + endpoint + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage + ", Concurrent requests: " + concurrentRequests.get());
+        System.out.println("Request ID: " + requestId + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage);
 
         String parentDir = new File(System.getProperty("user.dir")).getParent();
         String filePath = parentDir + "/machine-learning/backend_access_data.csv";
@@ -59,14 +58,14 @@ public class UsageInterceptor implements HandlerInterceptor {
         File file = new File(filePath);
         if (!file.exists()) {
             try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
-                writer.println("Request ID,Endpoint,CPU Usage,Memory Usage,Storage Usage,Concurrent Requests");
+                writer.println("Request ID,CPU Usage,Memory Usage,Storage Usage");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
-            writer.println(requestId + "," + endpoint + "," + cpuUsage + "," + memoryUsage + "," + storageUsage + "," + concurrentRequestsCount); // Include the requestId in the CSV
+            writer.println(requestId + "," + cpuUsage + "," + memoryUsage + "," + storageUsage); // Include the requestId in the CSV
         } catch (IOException e) {
             e.printStackTrace();
         }
