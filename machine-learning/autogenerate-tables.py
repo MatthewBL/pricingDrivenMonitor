@@ -33,7 +33,7 @@ backend_data = {
 df = pd.DataFrame(backend_data)
 df.to_csv('backend_access_data.csv', index=False)
 
-# fronted_access_data.csv
+# frontend_access_data.csv
 request_size = [usage * random.uniform(0.1, 1) for usage in base_storage_usage]  # in KB
 request_time = [usage * random.uniform(0.1, 1) for usage in cpu_usage]  # in seconds
 
@@ -48,7 +48,7 @@ frontend_data = {
     'Response Size': [random.randint(1, 5000) for _ in range(num_rows)]  # in KB
 }
 df = pd.DataFrame(frontend_data)
-df.to_csv('fronted_access_data.csv', index=False)
+df.to_csv('frontend_access_data.csv', index=False)
 
 # metrics.csv
 lines_of_code = [random.randint(1, 1000) for _ in range(num_urls)]

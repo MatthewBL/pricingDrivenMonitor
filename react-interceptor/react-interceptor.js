@@ -82,7 +82,7 @@ if (successful) {
   ].join(',') + '\n';
 
   // Append the data to the CSV file
-  fs.appendFileSync(path.resolve(__dirname, '../database/fronted_access_data.csv'), csvData);
+  fs.appendFileSync(path.resolve(__dirname, '../database/frontend_access_data.csv'), csvData);
 } else {
   console.error('Failed to register interceptors');
 }
