@@ -48,7 +48,6 @@ public class UsageInterceptor implements HandlerInterceptor {
         double cpuUsage = cpuLoadAfter - cpuLoadBefore;
         long memoryUsage = usedMemoryAfter - usedMemoryBefore;
         long storageUsage = freeSpaceBefore - freeSpaceAfter;
-        int concurrentRequestsCount = concurrentRequests.get();
         String requestId = request.getHeader("X-Request-ID"); // Get the requestId from the headers
         System.out.println("Request ID: " + requestId + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage);
 
