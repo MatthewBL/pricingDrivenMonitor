@@ -81,7 +81,7 @@ if (successful) {
     responseSize
   ].join(',') + '\n';
 
-  const filePath = path.resolve(__dirname, '../database/fronted_access_data.csv');
+  const filePath = path.resolve(__dirname, '../database/frontend_access_data.csv');
 
   // Check if file exists, if not, write headers
   if (!fs.existsSync(filePath)) {
@@ -89,7 +89,7 @@ if (successful) {
   }
 
   // Append the data to the CSV file
-  fs.appendFileSync(path.resolve(__dirname, '../database/frontend_access_data.csv'), csvData);
+  fs.appendFileSync(filePath, csvData);
 } else {
   console.error('Failed to register interceptors');
 }
