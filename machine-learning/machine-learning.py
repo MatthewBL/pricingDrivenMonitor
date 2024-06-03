@@ -1,8 +1,14 @@
 import pandas as pd
+import joblib
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import SelectFromModel
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from math import sqrt
 
 # Read the backend_access_data.csv file
 backend_data = pd.read_csv('backend_access_data.csv')
@@ -18,30 +24,28 @@ merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('
 
 merged_data = pd.merge(merged_data, metrics_data, on='Endpoint', suffixes=('_request', '_metric'))
 
-def feature_selection(target_attribute, merged_data, k=5):
+def feature_selection(target_attribute, merged_data):
     # Split the data into input and output
-    X = merged_data.drop(['CPU Usage', 'Memory Usage', 'Storage Usage', 'Request ID', 'Endpoint'], axis=1)
+    X = merged_data.drop(['CPU Usage', 'Memory Usage', 'Storage Usage', 'Request ID', 'Query', 'Endpoint'], axis=1)
     Y = merged_data[target_attribute]
 
-    categorical_columns = ['Query', 'HTTP method', 'Pricing Plan', 'Response Status']
+    categorical_columns = ['HTTP method', 'Pricing Plan', 'Response Status']
     X = pd.get_dummies(X, columns=categorical_columns)
 
-    # Feature extraction
-    test = SelectKBest(score_func=f_regression, k=k)
-    fit = test.fit(X, Y)
+    # Create a GBM model
+    model = GradientBoostingRegressor()
 
-    features = fit.transform(X)
+    # Train the model
+    model.fit(X, Y)
 
-    # Get column names
-    feature_names = X.columns
+    # Create a selector object that will use the GBM model to identify
+    # features that have an importance of more than 0.15
+    sfm = SelectFromModel(model, threshold=0.15)
 
-    # Get the indices of the features that were selected
-    selected_features = fit.get_support(indices=True)
+    # Train the selector
+    sfm.fit(X, Y)
 
-    # Get the names of the selected features
-    selected_feature_names = feature_names[selected_features]
-
-    return selected_feature_names
+    return X.columns[sfm.get_support(indices=True)]
 
 cpu_usage_feature_selection = feature_selection('CPU Usage', merged_data)
 memory_usage_feature_selection = feature_selection('Memory Usage', merged_data)
@@ -51,7 +55,7 @@ print('CPU Usage: ' + str(cpu_usage_feature_selection))
 print('Memory Usage: '+ str(memory_usage_feature_selection))
 print('Storage Usage: '+ str(storage_usage_feature_selection))
 
-def cross_validation(target_attribute, selected_feature_names, merged_data, cv=5):
+def train_model(target_attribute, selected_feature_names, merged_data, model=GradientBoostingRegressor()):
     # Select the features from the data
     X = merged_data
     Y = merged_data[target_attribute]
@@ -61,18 +65,45 @@ def cross_validation(target_attribute, selected_feature_names, merged_data, cv=5
     
     X = X[selected_feature_names]
 
-    # Create a Linear Regression model
-    model = LinearRegression()
+    # Split the data into training and test sets
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-    # Perform cross-validation
-    scores = cross_val_score(model, X, Y, cv=cv)
+    # Train the model
+    model.fit(X_train, Y_train)
 
-    return scores
+    evaluation = evaluate_model(model, X_test, Y_test)
 
-cpu_usage_cross_validation = cross_validation('CPU Usage', cpu_usage_feature_selection, merged_data)
-memory_usage_cross_validation = cross_validation('Memory Usage', memory_usage_feature_selection, merged_data)
-storage_usage_cross_validation = cross_validation('Storage Usage', storage_usage_feature_selection, merged_data)
+    return model, evaluation
 
-print('CPU Usage: ' + str(cpu_usage_cross_validation))
-print('Memory Usage: '+ str(memory_usage_cross_validation))
-print('Storage Usage: '+ str(storage_usage_cross_validation))
+def evaluate_model(model, X_test, Y_test):
+    # Use the model to make predictions on the test set
+    predictions = model.predict(X_test)
+
+    # Compute evaluation metrics
+    mae = mean_absolute_error(Y_test, predictions)
+    mse = mean_squared_error(Y_test, predictions)
+    rmse = sqrt(mse)
+    r2 = r2_score(Y_test, predictions)
+
+    return [mae, mse, rmse, r2]
+
+def predict(model, new_data):
+    # Use the trained model to make predictions on the new data
+    predictions = model.predict(new_data)
+
+    return predictions
+
+model = GradientBoostingRegressor()
+
+cpu_usage_model, cpu_usage_evaluation = train_model('CPU Usage', cpu_usage_feature_selection, merged_data, model)
+memory_usage_model, memory_usage_evaluation = train_model('Memory Usage', memory_usage_feature_selection, merged_data, model)
+storage_usage_model, storage_usage_evaluation = train_model('Storage Usage', storage_usage_feature_selection, merged_data, model)
+
+print('CPU Usage: ' + str(cpu_usage_evaluation))
+print('Memory Usage: '+ str(memory_usage_evaluation))
+print('Storage Usage: '+ str(storage_usage_evaluation))
+
+# Save the models to disk
+joblib.dump(cpu_usage_model, 'cpu_usage_model.pkl')
+joblib.dump(memory_usage_model, 'memory_usage_model.pkl')
+joblib.dump(storage_usage_model, 'storage_usage_model.pkl')

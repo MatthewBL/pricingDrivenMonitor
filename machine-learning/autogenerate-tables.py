@@ -4,11 +4,11 @@ import random
 
 fake = Faker()
 
-# Define the number of rows
-num_rows = 1000
-
 # Define the number of URLs
-num_urls = 20
+num_urls = 40
+
+# Define the number of rows
+num_rows = num_urls * 10000
 
 # Generate a list of IDs
 ids = [fake.uuid4() for _ in range(num_rows)]
