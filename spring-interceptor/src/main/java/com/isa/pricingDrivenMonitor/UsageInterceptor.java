@@ -13,21 +13,17 @@ import org.springframework.web.servlet.ModelAndView;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class UsageInterceptor implements HandlerInterceptor {
 
     private OperatingSystemMXBean osBean;
-    private AtomicInteger concurrentRequests;
 
     public UsageInterceptor() {
         osBean = ManagementFactory.getOperatingSystemMXBean();
-        concurrentRequests = new AtomicInteger(0);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        concurrentRequests.incrementAndGet();
         double cpuLoadBefore = osBean.getSystemLoadAverage();
         long usedMemoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long freeSpaceBefore = getFreeSpace();
@@ -48,23 +44,26 @@ public class UsageInterceptor implements HandlerInterceptor {
         double cpuUsage = cpuLoadAfter - cpuLoadBefore;
         long memoryUsage = usedMemoryAfter - usedMemoryBefore;
         long storageUsage = freeSpaceBefore - freeSpaceAfter;
-        String endpoint = request.getRequestURI();
-        int concurrentRequestsCount = concurrentRequests.get();
-        System.out.println("Endpoint: " + endpoint + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage + ", Concurrent requests: " + concurrentRequests.get());
-        
+        String requestId = request.getHeader("X-Request-ID"); // Get the requestId from the headers
+        System.out.println("Request ID: " + requestId + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage);
+
         String parentDir = new File(System.getProperty("user.dir")).getParent();
         String filePath = parentDir + "/machine-learning/backend_access_data.csv";
 
+        File file = new File(filePath);
+        if (!file.exists()) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
+                writer.println("Request ID,CPU Usage,Memory Usage,Storage Usage");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
-            writer.println(endpoint + "," + cpuUsage + "," + memoryUsage + "," + storageUsage + "," + concurrentRequestsCount);
+            writer.println(requestId + "," + cpuUsage + "," + memoryUsage + "," + storageUsage); // Include the requestId in the CSV
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        concurrentRequests.decrementAndGet();
     }
 
     private long getFreeSpace() throws Exception {
