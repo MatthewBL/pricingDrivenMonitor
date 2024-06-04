@@ -25,7 +25,7 @@ function fetchAndWriteMetrics(apiToken, projectId) {
     ].join(',')).join('\n') + '\n';
 
     // Write the CSV data to a file
-    fs.writeFileSync(path.resolve(__dirname, '../database/metrics.csv'), csvData);
+    fs.writeFileSync(path.resolve(__dirname, '../machine-learning/metrics.csv'), csvData);
   }).catch(error => {
     console.error('Error retrieving metrics:', error);
   });
