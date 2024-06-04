@@ -17,12 +17,16 @@ function fetchAndWriteMetrics(apiToken, projectId) {
       'Code Duplicity',
       'Lines of Code'
     ].join(',') + '\n' +
-    metrics.map(metric => [
-      metric.endpoint,
-      metric.complexity,
-      metric.duplicity,
-      metric.loc
-    ].join(',')).join('\n') + '\n';
+    metrics.map(metric => {
+      // Replace dashes with slashes in the endpoint name
+      const endpoint = metric.endpoint.replace(/-/g, '/');
+      return [
+        endpoint,
+        metric.complexity,
+        metric.duplicity,
+        metric.loc
+      ].join(',');
+    }).join('\n') + '\n';
 
     // Write the CSV data to a file
     fs.writeFileSync(path.resolve(__dirname, '../machine-learning/metrics.csv'), csvData);
