@@ -91,7 +91,7 @@ api.interceptors.response.use((response) => {
     concurrentUsers,
   ].join(',') + '\n';
   
-  const filePath = path.resolve(__dirname, '../database/frontend_access_data.csv');
+  const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
 
   // Check if file exists, if not, write headers
   if (!fs.existsSync(filePath)) {
