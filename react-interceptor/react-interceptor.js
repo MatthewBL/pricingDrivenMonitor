@@ -100,13 +100,14 @@ api.interceptors.response.use((response) => {
     JSON.stringify(response.data).length,
     concurrentUsers,
     Boolean(isCached),
+    startTime,
   ].join(',') + '\n';
   
   const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
 
   // Check if file exists, if not, write headers
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size,Concurrent Users,Cache Used\n');
+    fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Round-trip Time,Response Size,Concurrent Users,Cache Used,Request Time\n');
   }
 
   // Append the data to the CSV file

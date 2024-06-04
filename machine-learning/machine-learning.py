@@ -21,17 +21,17 @@ merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('
 
 merged_data = pd.merge(merged_data, metrics_data, on='Endpoint', suffixes=('_request', '_metric'))
 
-# Group the rows by endpoints and calculate the average request time of each endpoint
-grouped_data = merged_data.groupby('Endpoint')['Request Time'].mean()
+# Group the rows by endpoints and calculate the average rtt of each endpoint
+grouped_data = merged_data.groupby('Endpoint')['Round-trip Time'].mean()
 
-# Add a new feature "average request time", and give it the value obtained earlier
-merged_data['Average Request Time'] = merged_data['Endpoint'].map(grouped_data)
+# Add a new feature "average rtt", and give it the value obtained earlier
+merged_data['Average Round-trip Time'] = merged_data['Endpoint'].map(grouped_data)
 
 # Initialize a Robust Scaler
 scaler = RobustScaler()
 
-# Fit the scaler to the 'Request Time' column and transform it
-merged_data['Request Time'] = scaler.fit_transform(merged_data[['Request Time']])
+# Fit the scaler to the 'Round-trip Time' column and transform it
+merged_data['Round-trip Time'] = scaler.fit_transform(merged_data[['Round-trip Time']])
 
 # Split data into two datasets: one with isCached as true and another as false
 cached_data = merged_data[merged_data['isCached'] == True]
