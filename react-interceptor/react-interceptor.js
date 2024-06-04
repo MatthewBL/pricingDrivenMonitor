@@ -69,6 +69,16 @@ api.interceptors.response.use((response) => {
   const responseStatus = response.status;
   console.log('Response status:', responseStatus);
 
+  // Check for cache usage
+  const cacheControl = response.headers['cache-control'];
+  const eTag = response.headers.etag;
+  const expires = response.headers.expires;
+  const lastModified = response.headers['last-modified'];
+  const age = response.headers.age;
+
+  const isCached = cacheControl || eTag || expires || lastModified || age;
+  console.log('Cache used:', Boolean(isCached));
+
   // Calculate the time it took to process the request
   const requestTime = new Date() - startTime;
   console.log('Request processing time:', requestTime, 'ms');
@@ -89,13 +99,14 @@ api.interceptors.response.use((response) => {
     requestTime,
     JSON.stringify(response.data).length,
     concurrentUsers,
+    Boolean(isCached),
   ].join(',') + '\n';
   
   const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
 
   // Check if file exists, if not, write headers
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size,Concurrent Users\n');
+    fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size,Concurrent Users,Cache Used\n');
   }
 
   // Append the data to the CSV file

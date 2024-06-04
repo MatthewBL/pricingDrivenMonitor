@@ -29,7 +29,7 @@ def feature_selection(target_attribute, merged_data):
     X = merged_data.drop(['CPU Usage', 'Memory Usage', 'Storage Usage', 'Request ID', 'Query', 'Endpoint'], axis=1)
     Y = merged_data[target_attribute]
 
-    categorical_columns = ['HTTP method', 'Pricing Plan', 'Response Status']
+    categorical_columns = ['HTTP method', 'Pricing Plan', 'Response Status', 'Cache Used']
     X = pd.get_dummies(X, columns=categorical_columns)
 
     # Create a GBM model
@@ -60,7 +60,7 @@ def train_model(target_attribute, selected_feature_names, merged_data, model=Gra
     X = merged_data
     Y = merged_data[target_attribute]
 
-    categorical_columns = ['Query', 'HTTP method', 'Pricing Plan', 'Response Status']
+    categorical_columns = ['HTTP method', 'Pricing Plan', 'Response Status', 'Cache Used']
     X = pd.get_dummies(X, columns=categorical_columns)
     
     X = X[selected_feature_names]
