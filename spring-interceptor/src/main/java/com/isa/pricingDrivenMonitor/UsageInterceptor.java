@@ -13,21 +13,17 @@ import org.springframework.web.servlet.ModelAndView;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class UsageInterceptor implements HandlerInterceptor {
 
     private OperatingSystemMXBean osBean;
-    private AtomicInteger concurrentRequests;
 
     public UsageInterceptor() {
         osBean = ManagementFactory.getOperatingSystemMXBean();
-        concurrentRequests = new AtomicInteger(0);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        concurrentRequests.incrementAndGet();
         double cpuLoadBefore = osBean.getSystemLoadAverage();
         long usedMemoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long freeSpaceBefore = getFreeSpace();
@@ -68,11 +64,6 @@ public class UsageInterceptor implements HandlerInterceptor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        concurrentRequests.decrementAndGet();
     }
 
     private long getFreeSpace() throws Exception {
