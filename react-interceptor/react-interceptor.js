@@ -90,7 +90,7 @@ api.interceptors.response.use((response) => {
   // Format the data as CSV
   const csvData = [
     requestId,
-    endpoint + " " + httpMethod,
+    endpoint + "/" + httpMethod,
     query,
     httpMethod,
     pricingPlan,
