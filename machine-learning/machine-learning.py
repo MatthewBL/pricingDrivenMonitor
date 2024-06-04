@@ -114,13 +114,13 @@ def predict(model, new_data):
 
 model = GradientBoostingRegressor()
 
-cpu_usage_model_cache, cpu_usage_evaluation_cache = train_model('CPU Usage', cpu_usage_feature_selection_cache, data, model)
-memory_usage_model_cache, memory_usage_evaluation_cache = train_model('Memory Usage', memory_usage_feature_selection_cache, data, model)
-storage_usage_model_cache, storage_usage_evaluation_cache = train_model('Storage Usage', storage_usage_feature_selection_cache, data, model)
+cpu_usage_model_cache, cpu_usage_evaluation_cache = train_model('CPU Usage', cpu_usage_feature_selection_cache, cached_data, model)
+memory_usage_model_cache, memory_usage_evaluation_cache = train_model('Memory Usage', memory_usage_feature_selection_cache, cached_data, model)
+storage_usage_model_cache, storage_usage_evaluation_cache = train_model('Storage Usage', storage_usage_feature_selection_cache, cached_data, model)
 
-cpu_usage_model_not_cache, cpu_usage_evaluation_not_cache = train_model('CPU Usage', cpu_usage_feature_selection_not_cache, data, model)
-memory_usage_model_not_cache, memory_usage_evaluation_not_cache = train_model('Memory Usage', memory_usage_feature_selection_not_cache, data, model)
-storage_usage_model_not_cache, storage_usage_evaluation_not_cache = train_model('Storage Usage', storage_usage_feature_selection_not_cache, data, model)
+cpu_usage_model_not_cache, cpu_usage_evaluation_not_cache = train_model('CPU Usage', cpu_usage_feature_selection_not_cache, not_cached_data, model)
+memory_usage_model_not_cache, memory_usage_evaluation_not_cache = train_model('Memory Usage', memory_usage_feature_selection_not_cache, not_cached_data, model)
+storage_usage_model_not_cache, storage_usage_evaluation_not_cache = train_model('Storage Usage', storage_usage_feature_selection_not_cache, not_cached_data, model)
 
 print('Cached CPU Usage: ' + str(cpu_usage_evaluation_cache))
 print('Not cached CPU Usage: ' + str(cpu_usage_evaluation_not_cache))
