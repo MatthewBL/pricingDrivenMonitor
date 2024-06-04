@@ -43,3 +43,9 @@ target/
 # System files
 .DS_Store
 Thumbs.db
+
+# CSV files
+*.csv
+
+# PKL files
+*.pkl
