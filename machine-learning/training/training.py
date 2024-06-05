@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import joblib
 from sklearn.feature_selection import SelectFromModel
@@ -8,13 +9,34 @@ from sklearn.preprocessing import RobustScaler
 from math import sqrt
 
 # Read the backend_access_data.csv file
-backend_data = pd.read_csv('backend_access_data.csv')
+backend_data = pd.read_csv('../dataset/backend_access_data.csv')
 
 # Read the frontend_access_data.csv file
-frontend_data = pd.read_csv('frontend_access_data.csv')
+frontend_data = pd.read_csv('../dataset/frontend_access_data.csv')
 
 # Read the metrics.csv file
-metrics_data = pd.read_csv('metrics.csv')
+metrics_data = pd.read_csv('../dataset/metrics.csv')
+
+# Merge the backend and frontend data on the "Request ID" column
+merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('_backend', '_frontend'))
+
+merged_data = pd.merge(merged_data, metrics_data, on='Endpoint', suffixes=('_request', '_metric'))
+
+# Group the rows by endpoints and calculate the average rtt of each endpoint
+grouped_data = merged_data.groupby('Endpoint')['Round-trip Time'].mean()
+
+# Add a new feature "average rtt", and give it the value obtained earlier
+merged_data['Average Round-trip Time'] = merged_data['Endpoint'].map(grouped_data)
+
+# Initialize a Robust Scaler
+scaler = RobustScaler()
+
+# Fit the scaler to the 'Round-trip Time' column and transform it
+merged_data['Round-trip Time'] = scaler.fit_transform(merged_data[['Round-trip Time']])
+
+# Split data into two datasets: one with isCached as true and another as false
+cached_data = merged_data[merged_data['isCached'] == True]
+not_cached_data = merged_data[merged_data['isCached'] == False]
 
 # Merge the backend and frontend data on the "Request ID" column
 merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('_backend', '_frontend'))
@@ -129,18 +151,25 @@ print('Not cached Memory Usage: '+ str(memory_usage_evaluation_not_cache))
 print('Cached Storage Usage: '+ str(storage_usage_evaluation_cache))
 print('Not cached Storage Usage: '+ str(storage_usage_evaluation_not_cache))
 
+# Define the directory path
+dir_path = '../pre-trained models'
+
+# Create the directory if it doesn't exist
+if not os.path.exists(dir_path):
+    os.makedirs(dir_path)
+
 # Save the models to disk
-joblib.dump(cpu_usage_model_cache, 'cpu_usage_model_cache.pkl')
-joblib.dump(cpu_usage_model_not_cache, 'cpu_usage_model_not_cache.pkl')
-joblib.dump(memory_usage_model_cache, 'memory_usage_model_cache.pkl')
-joblib.dump(memory_usage_model_not_cache, 'memory_usage_model_not_cache.pkl')
-joblib.dump(storage_usage_model_cache, 'storage_usage_model_cache.pkl')
-joblib.dump(storage_usage_model_not_cache, 'storage_usage_model_not_cache.pkl')
+joblib.dump(cpu_usage_model_cache, os.path.join(dir_path, 'cpu_usage_model_cache.pkl'))
+joblib.dump(cpu_usage_model_not_cache, os.path.join(dir_path, 'cpu_usage_model_not_cache.pkl'))
+joblib.dump(memory_usage_model_cache, os.path.join(dir_path, 'memory_usage_model_cache.pkl'))
+joblib.dump(memory_usage_model_not_cache, os.path.join(dir_path, 'memory_usage_model_not_cache.pkl'))
+joblib.dump(storage_usage_model_cache, os.path.join(dir_path, 'storage_usage_model_cache.pkl'))
+joblib.dump(storage_usage_model_not_cache, os.path.join(dir_path, 'storage_usage_model_not_cache.pkl'))
 
 # Save the selected features to disk
-joblib.dump(cpu_usage_feature_selection_cache, 'cpu_usage_features_cache.pkl')
-joblib.dump(cpu_usage_feature_selection_not_cache, 'cpu_usage_features_not_cache.pkl')
-joblib.dump(memory_usage_feature_selection_cache, 'memory_usage_features_cache.pkl')
-joblib.dump(memory_usage_feature_selection_not_cache, 'memory_usage_features_not_cache.pkl')
-joblib.dump(storage_usage_feature_selection_cache, 'storage_usage_features_cache.pkl')
-joblib.dump(storage_usage_feature_selection_not_cache, 'storage_usage_features_not_cache.pkl')
+joblib.dump(cpu_usage_feature_selection_cache, os.path.join(dir_path, 'cpu_usage_features_cache.pkl'))
+joblib.dump(cpu_usage_feature_selection_not_cache, os.path.join(dir_path, 'cpu_usage_features_not_cache.pkl'))
+joblib.dump(memory_usage_feature_selection_cache, os.path.join(dir_path, 'memory_usage_features_cache.pkl'))
+joblib.dump(memory_usage_feature_selection_not_cache, os.path.join(dir_path, 'memory_usage_features_not_cache.pkl'))
+joblib.dump(storage_usage_feature_selection_cache, os.path.join(dir_path, 'storage_usage_features_cache.pkl'))
+joblib.dump(storage_usage_feature_selection_not_cache, os.path.join(dir_path, 'storage_usage_features_not_cache.pkl'))
