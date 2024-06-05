@@ -1,79 +1,50 @@
-## How to Implement the React Interceptor
-Follow these steps to implement the React Interceptor in your project:
+## Java configuration
 
-1. Include the necessary files in your project:
+### Add the packaged tool as a dependency in your pom.xml or build.gradle file:
 
-* react-interceptor.js
-* sendActivityData.js
-* useActivityData.js
-* JwtUtil.java
+Before using any Java functions, you need to install the package using the ```mvn install:install-file``` command:
 
-Ensure all these files are in the same directory.
-
-2. Use the Axios instance from react-interceptor.js:
-
-* Import the Axios instance from react-interceptor.js in the components where you need to make HTTP requests.
-* Use this instance instead of the global axios instance to make requests.
-
-Here's an example:
-
-```javascript
-// SomeComponent.js
-import React from 'react';
-import api from './react-interceptor'; // adjust the path if necessary
-
-function SomeComponent() {
-  // Use the Axios instance with interceptors
-  api.get('/some-endpoint')
-    .then(response => {
-      // Handle the response...
-    });
-
-  // Rest of the component...
-}
+```shell
+mvn install:install-file -Dfile=<path-to-file> -DgroupId=com.isa -DartifactId=pricingdrivenmonitor -Dversion=1.0.0 -Dpackaging=jar
 ```
 
-3. Modify your logout function:
+After running this command, you can add the library as a dependency in your pom.xml file like this:
 
-* Import the sendActivityData function from sendActivityData.js in the React component that manages user logout.
-* Call the sendActivityData() function in your logout function.
-
-Here's an example:
-
-```javascript
-// logout.js
-import sendActivityData from './sendActivityData'; // adjust the path if necessary
-
-function logout() {
-  // Send the activityData to the backend
-  sendActivityData();
-
-  // Rest of the logout function...
-}
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.isa</groupId>
+        <artifactId>pricingDrivenMonitor</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
-4. Modify your top-level React component:
+### Including the Spring interceptor in your Spring project
 
-* Import the useActivityData hook from useActivityData.js.
-* Call useActivityData() inside the component.
+1. Register the interceptor: In Spring, you register an interceptor by adding it to the interceptor registry. You can do this in a configuration class that implements the WebMvcConfigurer interface. Here's an example:
+```java
+import com.isa.pricingDrivenMonitor.UsageInterceptor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-Here's an example:
-```javascript
-// App.js
-import React from 'react';
-import useActivityData from './useActivityData'; // adjust the path if necessary
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
 
-function App() {
-  // Use the custom hook
-  useActivityData();
-
-  // Rest of the component...
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new UsageInterceptor());
+    }
 }
 ```
+In this code, the addInterceptors method adds the UsageInterceptor to the interceptor registry. This makes Spring call the UsageInterceptor for every incoming HTTP request.
 
-By following these steps, you can ensure that user activity data is sent to the backend both when the user logs out and when they close the browser window or tab.
-
-However, to track the user's pricing plan, you need to modify the implementation of the JWT.
+2. If your app is ready for production, make sure to set an environment variable NODE_ENV to prevent the interceptor from having an impact on the performance of your system: The UsageInterceptor doesn't monitor the usage if the NODE_ENV environment variable is set to 'production'. You can set this variable in the environment where you run your Spring application. If you're running the application from a command line, you can set the variable like this:
+```shell
+export NODE_ENV=production
+```
+If you're running the application from an IDE, you can usually set the environment variable in the run configuration.
 
 ### Including the user pricing plan in the JWT
 
