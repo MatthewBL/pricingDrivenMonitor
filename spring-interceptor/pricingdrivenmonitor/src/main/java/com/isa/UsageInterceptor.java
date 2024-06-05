@@ -51,7 +51,7 @@ public class UsageInterceptor implements HandlerInterceptor {
             System.out.println("Request ID: " + requestId + ", CPU Usage: " + cpuUsage + ", Memory Usage: " + memoryUsage + ", Storage Usage: " + storageUsage);
     
             String parentDir = new File(System.getProperty("user.dir")).getParent();
-            String filePath = parentDir + "/machine-learning/backend_access_data.csv";
+            String filePath = parentDir + "/machine-learning/dataset/backend_access_data.csv";
     
             File file = new File(filePath);
             if (!file.exists()) {

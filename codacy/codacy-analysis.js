@@ -29,7 +29,15 @@ function fetchAndWriteMetrics(apiToken, projectId) {
     }).join('\n') + '\n';
 
     // Write the CSV data to a file
-    fs.writeFileSync(path.resolve(__dirname, '../machine-learning/metrics.csv'), csvData);
+    const path = require('path');
+
+    // Get the path to the project's root directory
+    const rootPath = path.resolve(__dirname, '..');
+    
+    // Append the path to the machine-learning folder
+    const filePath = path.resolve(rootPath, 'machine-learning/dataset/metrics.csv');
+    
+    fs.writeFileSync(filePath, csvData);
   }).catch(error => {
     console.error('Error retrieving metrics:', error);
   });

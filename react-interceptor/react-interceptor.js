@@ -129,8 +129,14 @@ api.interceptors.response.use((response) => {
     }
   }
   else if (typeof process.env.NODE_ENV === 'undefined'){}
-  else {
-    const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
+  else {  
+    const path = require('path');
+
+    // Get the path to the project's root directory
+    const rootPath = path.resolve(__dirname, '..');
+    
+    // Append the path to the machine-learning folder
+    const filePath = path.resolve(rootPath, 'machine-learning/dataset/frontend_access_data.csv');
   
     // Check if file exists, if not, write headers
     if (!fs.existsSync(filePath)) {
