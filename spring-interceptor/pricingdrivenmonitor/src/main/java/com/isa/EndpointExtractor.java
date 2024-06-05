@@ -1,3 +1,6 @@
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -11,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class EndpointExtractor {
@@ -52,7 +56,7 @@ public class EndpointExtractor {
             Optional<AnnotationExpr> classAnnotation = cid.getAnnotationByClass(RequestMapping.class);
             if (classAnnotation.isPresent()) {
                 Pair<String, String> classEndpointInfo = extractEndpointInfo(classAnnotation.get());
-                currentClassPath = classEndpointInfo.getFirst();
+                currentClassPath = classEndpointInfo.getLeft();
             } else {
                 currentClassPath = "";
             }
@@ -65,8 +69,8 @@ public class EndpointExtractor {
                 .filter(annotation -> annotation.getNameAsString().endsWith("Mapping") || customAnnotations.contains(annotation.getNameAsString()))
                 .forEach(annotation -> {
                     Pair<String, String> methodEndpointInfo = extractEndpointInfo(annotation);
-                    String fullPath = currentClassPath + methodEndpointInfo.getFirst();
-                    writeEndpointToFile(md, annotation, fullPath, methodEndpointInfo.getSecond());
+                    String fullPath = currentClassPath + methodEndpointInfo.getLeft();
+                    writeEndpointToFile(md, annotation, fullPath, methodEndpointInfo.getRight());
                 });
         }
 
@@ -105,7 +109,7 @@ public class EndpointExtractor {
                     }
                 }
             }
-            return new Pair<>(path, method);
+            return Pair.of(path, method);
         }
     }
 }
