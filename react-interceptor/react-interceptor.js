@@ -1,4 +1,15 @@
+import axios from 'axios';
+import jwt_decode from 'jwt-decode';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import sendActivityData from './sendActivityData';
+
+// Define the threshold for the activity data size
+const THRESHOLD = 500000; // 0.5 MB
+
+// Create an instance of Axios
+const api = axios.create();
 
 let activeRequests = {};
 
@@ -54,7 +65,6 @@ api.interceptors.request.use((config) => {
 
   return config;
 }, (error) => {
-  successful = false;
   activeRequests[endpoint]--;
   return Promise.reject(error);
 });
@@ -88,9 +98,9 @@ api.interceptors.response.use((response) => {
   console.log('Response size:', responseSize, 'bytes');
 
   // Format the data as CSV
-  const csvData = [
+  const activityData = [
     requestId,
-    endpoint,
+    endpoint + "/" + httpMethod,
     query,
     httpMethod,
     pricingPlan,
@@ -100,21 +110,39 @@ api.interceptors.response.use((response) => {
     JSON.stringify(response.data).length,
     concurrentUsers,
     Boolean(isCached),
+    startTime,
   ].join(',') + '\n';
+
+  if (process.env.NODE_ENV === 'production') {
+    // Retrieve the existing CSV data from the user's session
+    const existingActivityData = window.sessionStorage.getItem('activityData') || '';
   
-  const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
+    // Append the new CSV data to the existing CSV data
+    const newActivityData = existingActivityData + activityData;
+  
+    // Store the new CSV data in the user's session
+    window.sessionStorage.setItem('activityData', newActivityData);
 
-  // Check if file exists, if not, write headers
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Request Time,Response Size,Concurrent Users,Cache Used\n');
+    // If the activityData surpasses a certain threshold, send it to the backend
+    if (newActivityData.length > THRESHOLD) {
+      sendActivityData(newActivityData);
+    }
   }
-
-  // Append the data to the CSV file
-  fs.appendFileSync(filePath, csvData);
+  else if (typeof process.env.NODE_ENV === 'undefined'){}
+  else {
+    const filePath = path.resolve(__dirname, '../machine-learning/frontend_access_data.csv');
+  
+    // Check if file exists, if not, write headers
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, 'Request ID,Endpoint,Query,HTTP method,Pricing Plan,Request Size,Response Status,Round-trip Time,Response Size,Concurrent Users,Cache Used,Request Time\n');
+    }
+  
+    // Append the data to the CSV file
+    fs.appendFileSync(filePath, activityData);
+  }
 
   return response;
 }, (error) => {
-  successful = false;
   const urlConfig = new URL(error.config.url);
   const endpoint = urlConfig.origin + urlConfig.pathname;
   activeRequests[endpoint]--;
