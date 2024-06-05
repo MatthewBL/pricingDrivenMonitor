@@ -49,3 +49,8 @@ Thumbs.db
 
 # PKL files
 *.pkl
+
+# Existing .gitignore content...
+
+# Ignore specific script
+**/autogenerate-tables.py
