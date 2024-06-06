@@ -35,7 +35,7 @@ function fetchAndWriteMetrics(apiToken, projectId) {
     const rootPath = path.resolve(__dirname, '..');
     
     // Append the path to the machine-learning folder
-    const filePath = path.resolve(rootPath, 'machine-learning/dataset/metrics.csv');
+    const filePath = path.resolve(rootPath, 'machine-learning/training/dataset/metrics.csv');
     
     fs.writeFileSync(filePath, csvData);
   }).catch(error => {
