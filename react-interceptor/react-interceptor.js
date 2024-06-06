@@ -136,7 +136,7 @@ api.interceptors.response.use((response) => {
     const rootPath = path.resolve(__dirname, '..');
     
     // Append the path to the machine-learning folder
-    const filePath = path.resolve(rootPath, 'machine-learning/dataset/frontend_access_data.csv');
+    const filePath = path.resolve(rootPath, 'machine-learning/training/dataset/frontend_access_data.csv');
   
     // Check if file exists, if not, write headers
     if (!fs.existsSync(filePath)) {

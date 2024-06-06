@@ -9,13 +9,13 @@ from sklearn.preprocessing import RobustScaler
 from math import sqrt
 
 # Read the backend_access_data.csv file
-backend_data = pd.read_csv('../dataset/backend_access_data.csv')
+backend_data = pd.read_csv('/dataset/backend_access_data.csv')
 
 # Read the frontend_access_data.csv file
-frontend_data = pd.read_csv('../dataset/frontend_access_data.csv')
+frontend_data = pd.read_csv('/dataset/frontend_access_data.csv')
 
 # Read the metrics.csv file
-metrics_data = pd.read_csv('../dataset/metrics.csv')
+metrics_data = pd.read_csv('/dataset/metrics.csv')
 
 # Merge the backend and frontend data on the "Request ID" column
 merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('_backend', '_frontend'))
@@ -38,26 +38,9 @@ merged_data['Round-trip Time'] = scaler.fit_transform(merged_data[['Round-trip T
 cached_data = merged_data[merged_data['isCached'] == True]
 not_cached_data = merged_data[merged_data['isCached'] == False]
 
-# Merge the backend and frontend data on the "Request ID" column
-merged_data = pd.merge(backend_data, frontend_data, on='Request ID', suffixes=('_backend', '_frontend'))
-
-merged_data = pd.merge(merged_data, metrics_data, on='Endpoint', suffixes=('_request', '_metric'))
-
-# Group the rows by endpoints and calculate the average rtt of each endpoint
-grouped_data = merged_data.groupby('Endpoint')['Round-trip Time'].mean()
-
-# Add a new feature "average rtt", and give it the value obtained earlier
-merged_data['Average Round-trip Time'] = merged_data['Endpoint'].map(grouped_data)
-
-# Initialize a Robust Scaler
-scaler = RobustScaler()
-
-# Fit the scaler to the 'Round-trip Time' column and transform it
-merged_data['Round-trip Time'] = scaler.fit_transform(merged_data[['Round-trip Time']])
-
-# Split data into two datasets: one with isCached as true and another as false
-cached_data = merged_data[merged_data['isCached'] == True]
-not_cached_data = merged_data[merged_data['isCached'] == False]
+# Drop the 'isCached' column from both datasets
+cached_data = cached_data.drop('isCached', axis=1)
+not_cached_data = not_cached_data.drop('isCached', axis=1)
 
 def feature_selection(target_attribute, data):
     # Split the data into input and output
@@ -152,7 +135,7 @@ print('Cached Storage Usage: '+ str(storage_usage_evaluation_cache))
 print('Not cached Storage Usage: '+ str(storage_usage_evaluation_not_cache))
 
 # Define the directory path
-dir_path = '../pre-trained models'
+dir_path = '/exported pre-trained models'
 
 # Create the directory if it doesn't exist
 if not os.path.exists(dir_path):
